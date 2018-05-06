@@ -13,24 +13,28 @@ cd /Volumes/Transcend/JES/PROJECTS/MarvelApp/moapp_expo
 cd $HOME/kaka/moapp
 
 ### CLEAR CACHE AND CORRUPT
-````
+```
 watchman watch-del-all
 npm start -- --reset-cache
 rm -rf $TMPDIR/react-*
 rm -fr $TMPDIR/metro*
-`````
+```
 ---
 
 https://github.com/facebook/react-native/issues/4968
 ---
 
 ### Para abrir el developer menu en el android simulator:
+```
 Cmd + M
+```
 ---
 
 ### Para abrir el developer menu en el android device:
+```
 adb reverse tcp:8081 tcp:8081
 adb shell input keyevent 82
+```
 y activar el LiveReload para que los cambios en el código se refresquen automáticamente
 ---
 
