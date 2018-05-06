@@ -1,0 +1,52 @@
+Arguments: 
+  /Users/Paradigma/.nvm/versions/node/v9.2.0/bin/node /usr/local/Cellar/yarn/1.3.2/libexec/bin/yarn.js add react-native-elements
+
+PATH: 
+  /Users/Paradigma/.nvm/versions/node/v9.2.0/bin:/opt/apache-maven-3.3.9/bin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin:/Users/Paradigma/Applications/phantomjs-1.9.8-macosx/bin:/opt/apache-maven-3.3.9/bin:/Users/Paradigma/Library/Android/sdk/tools:/Users/Paradigma/Library/Android/sdk/platform-tools:/opt/yarn-1.3.2/bin
+
+Yarn version: 
+  1.3.2
+
+Node version: 
+  9.2.0
+
+Platform: 
+  darwin x64
+
+npm manifest: 
+  {
+    "name": "moapp",
+    "version": "1.0.0",
+    "main": "node_modules/expo/AppEntry.js",
+    "private": true,
+    "dependencies": {
+      "expo": "^26.0.0",
+      "react": "16.3.0-alpha.1",
+      "react-native": "https://github.com/expo/react-native/archive/sdk-26.0.0.tar.gz",
+      "axios": "^0.18.0",
+      "eslint-config-rallycoding": "^3.2.0",
+      "lodash": "^4.17.5",
+      "react-native-router-flux": "^4.0.0-beta.28",
+      "react-redux": "^5.0.7",
+      "redux": "^3.7.2",
+      "redux-thunk": "^2.2.0"
+    },
+    "devDependencies": {
+      "babel-jest": "22.4.1",
+      "babel-preset-react-native": "4.0.0",
+      "jest": "22.4.2",
+      "react-test-renderer": "^16.3.0-alpha.1"
+    },
+    "jest": {
+      "preset": "react-native"
+    }
+  }
+
+yarn manifest: 
+  No manifest
+
+Lockfile: 
+  No lockfile
+
+Trace: 
+  Error: EACCES: permission denied, mkdir '/Users/Paradigma/kaka/moapp/node_modules/anymatch/node_modules/braces/node_modules/is-extendable'
