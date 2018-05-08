@@ -4,7 +4,7 @@ import _ from 'lodash';
 // import axios from 'axios';
 
 
-export const API_BASE_URL = 'https://cercemap.org/resources/json';
+export const API_BASE_URL = 'https://cercemap.org/resources/moapp/json';
 export const LOCAL_STORAGE_JSON_DIRECTORY = `${FileSystem.documentDirectory}json`;
 export const LOCAL_STORAGE_IMAGE_DIRECTORY = `${FileSystem.documentDirectory}image`;
 export const CONFIG_JSON_FILE = 'config.json';
@@ -23,6 +23,9 @@ export const EIGHTIES_JSON_FILE = 'eighties.characters.json';
  */
 export const loadAllJsonDataFiles = async () => {
 
+    //0.- Create json and images folder if there not exists
+    await createCacheFolders();
+
     //1.- Config read local
     const localConfig = _.cloneDeep(await getLocalConfig());
     console.log('JES localConfig', localConfig);
@@ -31,15 +34,14 @@ export const loadAllJsonDataFiles = async () => {
     const remoteConfig = await getRemoteConfig();
     console.log('JES remoteConfig', remoteConfig);
 
-
-    //3.- Create json and images folder if there not exists
-    await createCacheFolders();
-
     //4.- Get update flags
     const forceJsonDataReload = remoteConfig.forceJsonDataReload;
     console.log('JES forceJsonDataReload', forceJsonDataReload);
 
-    const refresJsonDataByDate = localConfig.jsonDataLastUpdateTimestamp < remoteConfig.jsonDataLastUpdateTimestamp;
+    const refresJsonDataByDate = (localConfig) ?
+        localConfig.jsonDataLastUpdateTimestamp < remoteConfig.jsonDataLastUpdateTimestamp
+        :
+        true;
     console.log('JES refresJsonDataByDate', refresJsonDataByDate);
 
 
@@ -63,7 +65,7 @@ export const loadAllJsonDataFiles = async () => {
 };
 
 const updateLocalConfig = (content) => {
-    return FileSystem.writeAsStringAsync(`${LOCAL_STORAGE_JSON_DIRECTORY}/${CONFIG_JSON_FILE}`, content); 
+    return FileSystem.writeAsStringAsync(`${LOCAL_STORAGE_JSON_DIRECTORY}/${CONFIG_JSON_FILE}`, content);
 };
 
 const createCacheFolders = async () => {
@@ -124,6 +126,8 @@ const downloadJSONFiles = async () => {
 
 const downloadConfigJsonFile = async () => {
     const downloadResult = await downloadFileUriIntoFileSystem(`${API_BASE_URL}/${CONFIG_JSON_FILE}`, `${CONFIG_REMOTE_JSON_FILE}`);
+    console.log('JES downloadConfigJsonFile downloadResult', downloadResult);
+
     return (downloadResult.status === 200) ? downloadResult : { error: 'Config json file fetching error!' };
 };
 
@@ -150,4 +154,23 @@ export const downloadFileUriIntoFileSystem = (uri, targetFile) => {
         uri,
         `${LOCAL_STORAGE_JSON_DIRECTORY}/${targetFile}`
     );
+};
+
+/**
+ * @name getMarvelPortraitSmallImage
+ * @description Build and image uri for portrait small images
+ * @param {string} imageUri Example: http://i.annihil.us/u/prod/marvel/i/mg/9/60/50febc4f55525.jpg
+ * @return {string} http://i.annihil.us/u/prod/marvel/i/mg/9/60/50febc4f55525/portrait_small.jpg
+ */
+export const getMarvelPortraitSmallImage = (imageUri) => {
+    let result = imageUri;
+    if (imageUri.indexOf('marvel/') !== -1) {
+        result = imageUri.replace('.jpg', '/portrait_small.jpg');
+    } else if (imageUri.indexOf('.jpg') !== -1) {
+        result = imageUri.replace('.jpg', '_tn.jpg');
+    } else if (imageUri.indexOf('.png') !== -1) {
+        result = imageUri.replace('.png', '_tn.png');
+    } 
+    // console.log('JES getMarvelPortraitSmallImage imageUri, result', imageUri, result);
+    return result;
 };

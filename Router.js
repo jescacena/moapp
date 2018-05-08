@@ -20,10 +20,10 @@ const RouterComponent = () => {
         <Router>
             <Scene key="root" hideNavBar>
                 <Scene key="splash" component={Splash} initial style={{ paddingTop: Platform.OS === 'ios' ? 10 : StatusBar.currentHeight }} />
-                <Scene key="main">
+                <Scene key="main" style={{ paddingTop: Platform.OS === 'ios' ? 10 : StatusBar.currentHeight }}>
                     <Scene key="listAges" component={AgesList} hideNavBar />
                     <Scene key="listCharacters" component={CharactersList} title="Characters List" hideNavBar />
-                    <Scene key="characterDetail" component={CharacterDetail} />
+                    <Scene key="characterDetail" component={CharacterDetail} hideNavBar/>
                 </Scene>
             </Scene>
         </Router>

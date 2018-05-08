@@ -10,7 +10,7 @@ export const charactersFetch = (fileUri) => {
     return (dispatch) => {
         dispatch({ type: CHARACTERS_CLEAN });
 
-        // axios.get(`https://cercemap.org/resources/json/${ageKey}.characters.json`)
+        // axios.get(`https://cercemap.org/resources/moapp/json/${ageKey}.characters.json`)
         loadASyncDataFromStorage(fileUri)
             .then(response => {
                 // console.log('JES response charactersFetch', response);

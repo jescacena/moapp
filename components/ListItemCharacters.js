@@ -1,13 +1,15 @@
 import React, { Component } from 'react';
-import { ListItem, Avatar } from 'react-native-elements';
+import { ListItem, Avatar, Text as TextNative } from 'react-native-elements';
 import _ from 'lodash';
 import { Font } from 'expo';
-import { Text, View, TouchableWithoutFeedback, Image, StyleSheet, ActivityIndicator } from 'react-native';
+import {
+    Text, View, TouchableWithoutFeedback,TouchableOpacity,
+    Image, StyleSheet, ActivityIndicator, Platform
+} from 'react-native';
 import HTMLView from 'react-native-htmlview';
 import { Actions } from 'react-native-router-flux';
 import { CardSection } from './common';
 import latoRegularFont from '../assets/fonts/Lato-Regular.ttf';
-
 
 class ListItemCharacters extends Component {
 
@@ -28,15 +30,23 @@ class ListItemCharacters extends Component {
         Actions.characterDetail({ character: this.props.character });
     }
 
-    render() {
-        const { name, img, yearDebuted, description } = this.props.character;
-        const year = yearDebuted.split(' ')[0];
-
-        const regex = /(<([^>]+)>)/ig;
-        const descriptionClean = description.replace(regex, '');
-
+    renderAndroidItem(name, img, yearDebuted, description) {
         return (
-            <TouchableWithoutFeedback delayPressIn={0} onPress={this.onRowPress.bind(this)}>
+            <TouchableWithoutFeedback delayPressIn={0} onPress={this.onRowPress.bind(this)} style={{marginTop:10}}>
+                <View style={{ flex: 1, flexDirection: 'column' }}>
+                    <TextNative h4>{name}</TextNative>
+                    <View style={{ maxHeight: 50 }}>
+                        <Text numberOfLines={2} style={{ marginTop: 5, fontFamily: 'Lato' }}>{description}</Text>
+                    </View>
+                </View>
+            </TouchableWithoutFeedback>
+
+        );
+    }
+
+    renderIOSItem(name, img, yearDebuted, description) {
+        return (
+            <TouchableOpacity onPress={this.onRowPress.bind(this)} style={{ backgroundColor: 'rgba(241, 241, 241, 1)' }}>
                 {
                     this.state.fontLoaded ? (
 
@@ -45,19 +55,21 @@ class ListItemCharacters extends Component {
                             key={name}
                             roundAvatar
                             title={name}
-                            subtitle={
-                                <View style={{ maxHeight: 50 }}>
-                                    <Text numberOfLines={2} style={{ marginTop: 5, fontFamily: 'Lato' }}>{descriptionClean}</Text>
-                                </View>
-                            }
                             avatar={
                                 <Avatar
                                     large
                                     rounded
                                     source={{ uri: img, cache: 'force-cache' }}
                                     overlayContainerStyle={{ marginTop: 0 }}
+                                    resizeMethod="resize"
                                 />
                             }
+                            subtitle={
+                                <View style={{ maxHeight: 50 }}>
+                                    <Text numberOfLines={2} style={{ marginTop: 5, fontFamily: 'Lato' }}>{description}</Text>
+                                </View>
+                            }
+
                             titleContainerStyle={{ marginLeft: 10 }}
                             titleStyle={{ marginTop: 0, fontSize: 20, fontWeight: 'bold' }}
                             subtitleStyle={{ fontSize: 15 }}
@@ -65,16 +77,40 @@ class ListItemCharacters extends Component {
 
                         />
                     ) : (
-                        <ActivityIndicator size="large" color="#E70000" />
-                    )
+                            <ActivityIndicator size="large" color="#E70000" />
+                        )
                 }
-            </TouchableWithoutFeedback>
+            </TouchableOpacity>
         );
+    }
+
+    render() {
+        const { name, img, thumbnail, yearDebuted, description } = this.props.character;
+        const year = yearDebuted.split(' ')[0];
+
+        const regex = /(<([^>]+)>)/ig;
+        const descriptionClean = description.replace(regex, '');
+
+        return this.renderIOSItem(name, thumbnail, year, descriptionClean);
+
+        // return Platform.OS === 'ios' ?
+        //     this.renderIOSItem(name, img, year, descriptionClean)
+        //     :
+        //     this.renderAndroidItem(name, img, year, descriptionClean);
     }
 }
 
 /**
  *        
+ *                             avatar={
+                                <Avatar
+                                    large
+                                    rounded
+                                    source={{ uri: img, cache: 'force-cache' }}
+                                    overlayContainerStyle={{ marginTop: 0 }}
+                                    resizeMethod="resize"
+                                />
+                            }
  * 
  *                             <Text numberOfLines={2} style={{ marginTop: 5 }}>{descriptionClean}</Text>
 

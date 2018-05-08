@@ -1,32 +1,34 @@
 import React, { Component } from 'react';
-import { View, Text, Image, Linking, ScrollView, StyleSheet, ActivityIndicator } from 'react-native';
-import { Card, Button } from 'react-native-elements';
+import { View, Text, ImageBackground, Linking, ScrollView, StyleSheet, ActivityIndicator, Platform, StatusBar } from 'react-native';
+import { Card, Button, Header } from 'react-native-elements';
 import { Font } from 'expo';
 import HTMLView from 'react-native-htmlview';
+import { Actions } from 'react-native-router-flux';
+import { connect } from 'react-redux';
 
-import { CardSection } from './common';
 import { gaScreenView, gaScreenEvent } from '../services';
 import permanentMarkerRegularFont from '../assets/fonts/PermanentMarker-Regular.ttf';
 import latoRegularFont from '../assets/fonts/Lato-Regular.ttf';
+import splashImage from '../assets/img/Marvel-Comics-Logo-Oldies.png';
 
-export default class CharacterDetail extends Component {
+
+class CharacterDetail extends Component {
 
     state = {
         fontLoaded: false
     };
 
+    componentWillMount() {
+        const { name } = this.props.character;
+        gaScreenView('CharacterDetail');
+        gaScreenEvent('Character', name);
+    }
     async componentDidMount() {
         await Font.loadAsync({
             'permanent-marker': permanentMarkerRegularFont,
             'Lato': latoRegularFont
         });
         this.setState({ fontLoaded: true });
-    }
-
-    componentWillMount() {
-        const { name } = this.props.character;
-        gaScreenView('CharacterDetail');
-        gaScreenEvent('Character', name);
     }
 
     render() {
@@ -40,47 +42,81 @@ export default class CharacterDetail extends Component {
         } = styles;
 
         return (
-            <ScrollView style={{ marginTop: 20 }}>
-                {
-                    this.state.fontLoaded ? (
-                        <Card
-                            image={{ uri: img, cache: 'force-cache' }}
-                            imageStyle={{ height: 400 }}
-                            title={name.toUpperCase()}
-                            titleStyle={{ fontFamily: 'Lato', textAlign: 'left', marginLeft: 10 }}
-                        >
-                            <HTMLView
-                                addLineBreaks={false}
-                                value={description}
-                                stylesheet={stylesHtml}
-                            />
-                            <View style={{ borderTopWidth: 1, borderTopColor: '#F1F1F1', marginBottom: 10, paddingTop: 10 }}>
-                                <Text style={{ fontWeight: 'normal' }}>Year debuted: </Text>
-                                <Text style={{ fontWeight: 'bold' }}>{yearDebuted}</Text>
-                            </View>
-                            <View style={{ borderTopWidth: 1, borderTopColor: '#F1F1F1', marginBottom: 10, paddingTop: 10 }}>
-                                <Text style={{ fontWeight: 'normal' }}>Creators: </Text>
-                                <Text style={{ fontWeight: 'bold' }}>{creators}</Text>
-                            </View>
-                            <View style={{ borderTopWidth: 1, borderTopColor: '#F1F1F1', marginBottom: 10, paddingTop: 10 }}>
-                                <Button
-                                    icon={{ name: 'link' }}
-                                    onPress={() => {
-                                        Linking.openURL(firstAppearanceUrl); gaScreenEvent('Character First appeareance', name);
-                                    }}
-                                    fontFamily='Lato'
-                                    backgroundColor='#03A9F4'
-                                    buttonStyle={{ borderRadius: 0, marginLeft: 0, marginRight: 0, marginBottom: 0 }}
-                                    title='First Appearance'
-                                />
-                            </View>
-                        </Card>
-                    ) : (
-                            <ActivityIndicator size="large" color="#F1F1F1" />
-                        )
-                }
+            <View style={{ flex: 1, marginTop: Platform.OS === 'ios' ? 20 : StatusBar.currentHeight }}>
+                <Header
+                    backgroundColor='#f11e22'
+                    outerContainerStyles={{ height: 55 }}
+                    statusBarProps={{ barStyle: 'light-content' }}
 
-            </ScrollView>
+                    leftComponent={{
+                        icon: 'arrow-left',
+                        type: 'octicon',
+                        color: '#fff',
+                        style: {
+                            marginTop: 40,
+                            padding: 0,
+                            //paddingTop: 10 
+                        },
+                        onPress: () => {
+                            Actions.listCharacters({ age: this.props.ageSelected });
+                            gaScreenEvent('back click', 'characterList');
+                        }
+                    }}
+
+                    rightComponent={
+                        <View style={{ width: 100, marginTop: 0, flex: 1 }}>
+                            <ImageBackground
+                                resizeMode='contain'
+                                style={{ flex: 1, height: 30, marginTop: -5, marginLeft: 30 }}
+                                source={splashImage}
+                            />
+                        </View>
+                    }
+                />
+
+                <ScrollView>
+                    {
+                        this.state.fontLoaded ? (
+                            <Card
+                                image={{ uri: img, cache: 'force-cache' }}
+                                imageStyle={{ height: 400 }}
+                                title={name.toUpperCase()}
+                                titleStyle={{ fontFamily: 'Lato', textAlign: 'left', marginLeft: 10 }}
+                            >
+                                <HTMLView
+                                    addLineBreaks={false}
+                                    value={description}
+                                    stylesheet={stylesHtml}
+                                />
+                                <View style={{ borderTopWidth: 1, borderTopColor: '#F1F1F1', marginBottom: 10, paddingTop: 10 }}>
+                                    <Text style={{ fontWeight: 'normal' }}>Year debuted: </Text>
+                                    <Text style={{ fontWeight: 'bold' }}>{yearDebuted}</Text>
+                                </View>
+                                <View style={{ borderTopWidth: 1, borderTopColor: '#F1F1F1', marginBottom: 10, paddingTop: 10 }}>
+                                    <Text style={{ fontWeight: 'normal' }}>Creators: </Text>
+                                    <Text style={{ fontWeight: 'bold' }}>{creators}</Text>
+                                </View>
+                                <View style={{ borderTopWidth: 1, borderTopColor: '#F1F1F1', marginBottom: 10, paddingTop: 10 }}>
+                                    <Button
+                                        icon={{ name: 'link' }}
+                                        onPress={() => {
+                                            Linking.openURL(firstAppearanceUrl); gaScreenEvent('Character First appeareance', name);
+                                        }}
+                                        fontFamily='Lato'
+                                        backgroundColor='#03A9F4'
+                                        buttonStyle={{ borderRadius: 0, marginLeft: 0, marginRight: 0, marginBottom: 0 }}
+                                        title='First Appearance'
+                                    />
+                                </View>
+                            </Card>
+                        ) : (
+                                <ActivityIndicator size="large" color="#F1F1F1" />
+                            )
+                    }
+
+                </ScrollView>
+            </View>
+
 
         );
 
@@ -115,7 +151,14 @@ const styles = {
     }
 };
 
-// export default CharacterDetail;
+const mapStateToProps = state => {
+    console.log('JES character detail state', state);
+    return {
+        ageSelected: state.ageSelected
+    };
+};
+
+export default connect(mapStateToProps)(CharacterDetail);
 
 
 /**

@@ -6,20 +6,21 @@ import {
 } from 'react-native';
 import { Icon } from 'react-native-elements';
 import { Actions } from 'react-native-router-flux';
+import { connect } from 'react-redux';
 
-import { CardSection } from './common';
+import { setAgeAselected } from '../actions';
+
 
 class ListItemAges extends Component {
 
     onRowPress() {
-        console.log('JES age selected:', this.props.age);
+        this.props.setAgeAselected(this.props.age);
         Actions.listCharacters({ age: this.props.age });
     }
 
     render() {
         const { name, img, period } = this.props.age;
         const { width } = Dimensions.get('window');
-        // console.log('JES width', width);
 
         return (
 
@@ -93,7 +94,7 @@ const styles = {
     }
 };
 
-export default ListItemAges;
+export default connect(null, { setAgeAselected })(ListItemAges);
 
 
 /**

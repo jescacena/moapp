@@ -8,7 +8,7 @@ import { Asset, AppLoading } from 'expo';
 
 
 import { charactersFetch } from '../actions';
-import { gaScreenView, gaScreenEvent } from '../services';
+import { gaScreenView, gaScreenEvent, getMarvelPortraitSmallImage } from '../services';
 
 // import { Header } from './common';
 import ListItemCharacters from './ListItemCharacters';
@@ -32,7 +32,6 @@ class CharactersList extends Component {
     };
 
     componentWillMount() {
-        // console.log('JES this.props', this.props);
         //Get character list fileUri
         const charactersFileUri = _.find(this.props.downloadedData, (item) => {
             return item.key === this.props.age.key;
@@ -45,11 +44,16 @@ class CharactersList extends Component {
     }
 
     componentWillReceiveProps(nextProps) {
+        if (nextProps.characters.length > 0) {
+            //console.log('JES loadAssetsAsync START', nextProps.characters);
+            this.loadAssetsAsync(nextProps.characters);
+            //console.log('JES loadAssetsAsync END');
+        }
+
         this.createDataSource(nextProps);
     }
 
-    async createDataSource({ characters }) {
-        await this.loadAssetsAsync(this.props.characters);
+    createDataSource({ characters }) {
 
         const ds = new ListView.DataSource({
             rowHasChanged: (r1, r2) => r1 !== r2
@@ -60,7 +64,7 @@ class CharactersList extends Component {
 
     async loadAssetsAsync(characters) {
         const imgArray = _.map(characters, (item) => { return item.img; });
-        console.log('JES imgArray', imgArray);
+        //console.log('JES imgArray', imgArray);
 
         const imageAssets = cacheImages(imgArray);
 
@@ -78,7 +82,7 @@ class CharactersList extends Component {
             return (
                 <AppLoading
                     startAsync={this.loadAssetsAsync}
-                    onFinish={() => {this.setState({ isReady: true }); console.log('JES on finish!!');}}
+                    onFinish={() => { this.setState({ isReady: true }); }}
                     onError={console.warn}
                 />
             );
@@ -86,7 +90,7 @@ class CharactersList extends Component {
 
         const title = this.props.age.name;
         return (
-            <View style={{ marginTop: Platform.OS === 'ios' ? 20 : StatusBar.currentHeight }}>
+            <View style={{ flex: 1, backgroundColor: 'rgba(231, 0, 0, 1)', marginTop: Platform.OS === 'ios' ? 20 : StatusBar.currentHeight }}>
                 <Header
                     backgroundColor='#f11e22'
                     outerContainerStyles={{ height: 55 }}
@@ -104,13 +108,14 @@ class CharactersList extends Component {
                         <Text
                             style={{
                                 color: '#fff',
-                                fontSize: 20,
+                                fontSize: 22,
                                 fontFamily: 'permanent-marker',
-                                marginTop: 60,
-                                paddingTop: 30,
+                                marginTop: -5,
+                                //paddingTop: 30,
                                 //paddingTop: 10,   
                                 marginLeft: 30
-                            }}>
+                            }}
+                            >
                             {title}
                         </Text>
 
@@ -128,10 +133,12 @@ class CharactersList extends Component {
                 />
                 <ScrollView>
                     <ListView
+                        pageSize={5}
                         style={{ backgroundColor: '#FFFDEF' }}
                         enableEmptySections
                         dataSource={this.dataSource}
                         renderRow={this.renderRow}
+                        
                     />
                 </ScrollView>
             </View>
@@ -143,8 +150,12 @@ class CharactersList extends Component {
 const mapStateToProps = state => {
     if (!_.isEmpty(state.characters)) {
         const charactersArray = _.map(state.characters, (value, key) => {
-            return { ...value, id: key };
+            const thumbnail = getMarvelPortraitSmallImage(value.img);
+            return { ...value, id: key, thumbnail };
         });
+        // _.forEach(charactersArray, (item) => {
+        //     console.log('JES character', item.name, item.img);
+        // });
         return {
             downloadedData: state.downloadedData,
             characters: charactersArray
