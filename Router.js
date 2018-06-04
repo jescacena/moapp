@@ -32,17 +32,3 @@ const RouterComponent = () => {
 
 
 export default RouterComponent;
-
-/**
- *         
- * 
- *     
-
-<Router sceneStyle={{ paddingTop: 0 }}>
-        <Scene key="root" hideNavBar onExit={() => { console.log('JES onBack -->', this); }}>
-            <Scene key="characterDetail" component={CharacterDetail} hideNavBar character={characterExample} onExit={() => { console.log('JES onBack -->', this); }} />
-        </Scene>
-    </Router>
-
-                
- */

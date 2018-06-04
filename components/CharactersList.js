@@ -1,17 +1,22 @@
 import _ from 'lodash';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { ListView, View, ScrollView, Text, ImageBackground, Platform, StatusBar, Image } from 'react-native';
-import { Header } from 'react-native-elements';
+import {
+    ListView, View, ScrollView, Text,
+    ImageBackground, Platform, StatusBar, Image, Dimensions
+} from 'react-native';
+import { Header, Text as TextNative, Icon } from 'react-native-elements';
 import { Actions } from 'react-native-router-flux';
 import { Asset, AppLoading } from 'expo';
+import Modal from 'react-native-modalbox';
 
 
-import { charactersFetch } from '../actions';
+import { charactersFetch, setScrollPositionCharacterList } from '../actions';
 import { gaScreenView, gaScreenEvent, getMarvelPortraitSmallImage } from '../services';
 
 // import { Header } from './common';
 import ListItemCharacters from './ListItemCharacters';
+import CharacterDetail from './CharacterDetail';
 import splashImage from '../assets/img/Marvel-Comics-Logo-Oldies.png';
 
 
@@ -27,9 +32,15 @@ function cacheImages(images) {
 
 class CharactersList extends Component {
 
-    state = {
-        isReady: false,
-    };
+    constructor(props) {
+        super(props);
+        this.state = {
+            isReady: false,
+            scrollPosition: 0,
+            modalVisible: false,
+            character: null
+        };
+    }
 
     componentWillMount() {
         //Get character list fileUri
@@ -45,15 +56,20 @@ class CharactersList extends Component {
 
     componentWillReceiveProps(nextProps) {
         if (nextProps.characters.length > 0) {
-            //console.log('JES loadAssetsAsync START', nextProps.characters);
             this.loadAssetsAsync(nextProps.characters);
-            //console.log('JES loadAssetsAsync END');
         }
 
         this.createDataSource(nextProps);
     }
 
+    componentDidMount() {
+    }
+
+
+
     createDataSource({ characters }) {
+
+        characters = _.sortBy(characters, [function(o) { return o.name; }]);
 
         const ds = new ListView.DataSource({
             rowHasChanged: (r1, r2) => r1 !== r2
@@ -64,17 +80,50 @@ class CharactersList extends Component {
 
     async loadAssetsAsync(characters) {
         const imgArray = _.map(characters, (item) => { return item.img; });
-        //console.log('JES imgArray', imgArray);
-
-        const imageAssets = cacheImages(imgArray);
-
+        if (this.props.forceImageDataReload) {
+            await Promise.all([...imgArray]);
+        } else {
+            const imageAssets = cacheImages(imgArray);
+            await Promise.all([...imageAssets]);
+        }
         // const fontAssets = cacheFonts([FontAwesome.font]);
 
-        await Promise.all([...imageAssets]);
     }
+
+    onPressCallback(character) {
+        this.setState({ modalVisible: true, character: character });
+
+        //Save scroll position on redux state 
+        //this.props.setScrollPositionCharacterList(this.state.scrollPosition);
+
+    }
+
+    getCharacterDetailComponent() {
+        return (
+            <View style={{ flex: 1 }}>
+                <ScrollView style={{ flex: 1 }}>
+                    <CharacterDetail character={this.state.character} modalView={true} />
+                </ScrollView>
+            </View>
+        );
+
+    }
+
     renderRow(character) {
-        // console.log(character);
-        return <ListItemCharacters character={character} />;
+        return <ListItemCharacters character={character} onPressCallback={this.onPressCallback.bind(this)} />;
+    }
+
+    handleScroll(event) {
+        // this.yOffset=  event.nativeEvent.contentOffset.y;
+
+        // if(event.nativeEvent.contentOffset.y !== 0) {
+        //     this.setState({ scrollPosition: event.nativeEvent.contentOffset.y });
+        // }
+
+    }
+
+    onModalClose() {
+        this.setState({ modalVisible: false });
     }
 
     render() {
@@ -90,58 +139,109 @@ class CharactersList extends Component {
 
         const title = this.props.age.name;
         return (
-            <View style={{ flex: 1, backgroundColor: 'rgba(231, 0, 0, 1)', marginTop: Platform.OS === 'ios' ? 20 : StatusBar.currentHeight }}>
-                <Header
-                    backgroundColor='#f11e22'
-                    outerContainerStyles={{ height: 55 }}
-                    statusBarProps={{ barStyle: 'light-content' }}
-                    rightComponent={
-                        <View style={{ width: 100, marginTop: 0, flex: 1 }}>
-                            <ImageBackground
-                                resizeMode='contain'
-                                style={{ flex: 1, height: 30, marginTop: -5, marginLeft: 30 }}
-                                source={splashImage}
-                            />
-                        </View>
-                    }
-                    centerComponent={
-                        <Text
-                            style={{
-                                color: '#fff',
-                                fontSize: 22,
-                                fontFamily: 'permanent-marker',
-                                marginTop: -5,
-                                //paddingTop: 30,
-                                //paddingTop: 10,   
-                                marginLeft: 30
-                            }}
+            <View style={{ flex: 1 }}>
+                <View style={{ flex: 1, backgroundColor: 'rgba(231, 0, 0, 1)', marginTop: Platform.OS === 'ios' ? 20 : StatusBar.currentHeight }}>
+                    <Header
+                        backgroundColor='#f11e22'
+                        outerContainerStyles={{ height: 55 }}
+                        statusBarProps={{ barStyle: 'light-content' }}
+                        rightComponent={
+                            <View style={{ width: 100, marginTop: 0, flex: 1 }}>
+                                <ImageBackground
+                                    resizeMode='contain'
+                                    style={{ flex: 1, height: 30, marginTop: -5, marginLeft: 30 }}
+                                    source={splashImage}
+                                />
+                            </View>
+                        }
+                        centerComponent={
+                            <Text
+                                style={{
+                                    color: '#fff',
+                                    fontSize: 22,
+                                    fontFamily: 'permanent-marker',
+                                    marginTop: -5,
+                                    //paddingTop: 30,
+                                    //paddingTop: 10,   
+                                    marginLeft: 30
+                                }}
                             >
-                            {title}
-                        </Text>
+                                {title}
+                            </Text>
 
-                    }
-                    leftComponent={{
-                        icon: 'home',
-                        color: '#fff',
-                        style: {
-                            marginTop: 40,
-                            padding: 0,
-                            //paddingTop: 10 
-                        },
-                        onPress: () => { Actions.listAges(); gaScreenEvent('home click', 'agesList'); }
-                    }}
-                />
-                <ScrollView>
-                    <ListView
-                        pageSize={5}
-                        style={{ backgroundColor: '#FFFDEF' }}
-                        enableEmptySections
-                        dataSource={this.dataSource}
-                        renderRow={this.renderRow}
-                        
+                        }
+                        leftComponent={{
+                            icon: 'home',
+                            color: '#fff',
+                            style: {
+                                marginTop: 40,
+                                padding: 0,
+                                //paddingTop: 10 
+                            },
+                            onPress: () => { Actions.listAges(); gaScreenEvent('home click', 'agesList'); }
+                        }}
                     />
-                </ScrollView>
-            </View>
+                    <ScrollView
+                        scrollEventThrottle={16}
+                        onScroll={this.handleScroll.bind(this)}
+                        ref={(ref) => this.myScroll = ref}>
+                        <ListView
+                            pageSize={5}
+                            style={{ backgroundColor: '#FFFDEF' }}
+                            enableEmptySections
+                            dataSource={this.dataSource}
+                            renderRow={this.renderRow.bind(this)}
+
+                        />
+                    </ScrollView>
+
+
+                </View>
+
+                <Modal
+                    style={{ justifyContent: 'center', alignItems: 'center', marginBottom: 10, width: Dimensions.get('window').width, backgroundColor: '#c50000' }}
+                    backdrop={false}
+                    coverScreen={true}
+                    swipeToClose={true}
+                    swipeArea={20}
+                    backButtonClose={true}
+                    position={'center'}
+                    ref={'modalCharacterDetail'}
+                    isOpen={this.state.modalVisible}
+                    onClosed={this.onModalClose.bind(this)}
+                >
+                    <Header
+                        backgroundColor='#f11e22'
+                        outerContainerStyles={{ height: 55 , width: (Dimensions.get('window').width) }}
+                        statusBarProps={{ barStyle: 'light-content' }}
+                        leftComponent={
+                            {
+                                icon: 'chevron-left',
+                                size: 25,
+                                type: 'font-awesomwe',
+                                color: '#fff',
+                                iconStyle: {
+                                    top: Platform.OS === 'ios' ? 10 : 0
+                                },
+                                onPress: () => {
+                                    this.setState({ modalVisible: false });
+                                }
+                            }
+                        }
+                        rightComponent={
+                            <View style={{ width: 100, marginTop: 0, flex: 1 }}>
+                                <ImageBackground
+                                    resizeMode='contain'
+                                    style={{ flex: 1, height: 30, marginTop: 0, marginLeft: 0 }}
+                                    source={splashImage}
+                                />
+                            </View>
+                        }
+                    />
+
+                    {this.getCharacterDetailComponent()}
+                </Modal>
+            </View >
 
         );
     }
@@ -154,35 +254,21 @@ const mapStateToProps = state => {
             return { ...value, id: key, thumbnail };
         });
         // _.forEach(charactersArray, (item) => {
-        //     console.log('JES character', item.name, item.img);
         // });
         return {
             downloadedData: state.downloadedData,
+            forceImageDataReload: state.forceImageDataReload,
+            scrollPositionCharacterList: state.scrollPositionCharacterList,
             characters: charactersArray
         };
     }
     return {
         downloadedData: state.downloadedData,
+        forceImageDataReload: state.forceImageDataReload,
+        scrollPositionCharacterList: state.scrollPositionCharacterList,
         characters: []
     };
 };
 
 // export default AgesList;
-export default connect(mapStateToProps, { charactersFetch })(CharactersList);
-
-/**
- *     render() {
-        const title = this.props.age.name;
-        return (
-            <ScrollView>
-                <Header headerText={title} />
-                <ListView
-                    style={{ backgroundColor: '#FFFDEF' }}
-                    enableEmptySections
-                    dataSource={this.dataSource}
-                    renderRow={this.renderRow}
-                />
-            </ScrollView>
-        );
-    }
- */
+export default connect(mapStateToProps, { charactersFetch, setScrollPositionCharacterList })(CharactersList);

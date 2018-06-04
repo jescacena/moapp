@@ -4,9 +4,12 @@
     "description": "A quick catalog for marvel old characters",
     "slug": "moapp",
     "privacy": "public",
-    "sdkVersion": "26.0.0",
-    "platforms": ["ios", "android"],
-    "version": "1.0.0",
+    "sdkVersion": "27.0.0",
+    "platforms": [
+      "ios",
+      "android"
+    ],
+    "version": "1.0.8",
     "orientation": "portrait",
     "icon": "./assets/icon-moapp.png",
     "splash": {
@@ -25,7 +28,22 @@
       "bundleIdentifier": "com.jes.moapp"
     },
     "android": {
-      "package": "com.jes.moapp"
+      "package": "com.jes.moapp",
+      "versionCode": 108,
+      "permissions": [
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_NETWORK_STATE",
+        "INTERNET",
+        "MANAGE_DOCUMENTS",
+        "READ_EXTERNAL_STORAGE",
+        "READ_INTERNAL_STORAGE",
+        "SYSTEM_ALERT_WINDOW",
+        "VIBRATE",
+        "WAKE_LOCK",
+        "WRITE_EXTERNAL_STORAGE",
+        "WRITE_SETTINGS"
+      ]
     }
   }
 }

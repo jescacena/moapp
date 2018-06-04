@@ -63,8 +63,6 @@ class AgesList extends Component {
     renderRow(ageKey) {
         if (this.props.ages && this.props.ages.length > 0) {
             const ageItem = _.find(this.props.ages, (item) => { return item.key === ageKey; });
-            // console.log('JES renderRow-->this.props.ages-->', this.props.ages);
-            // console.log('JES renderRow-->', ageItem);
             return <ListItemAges age={ageItem} />;
         }
         return (
@@ -135,13 +133,11 @@ class AgesList extends Component {
 }
 
 const mapStateToProps = state => {
-    // console.log('JES mapStateToProps state:', state);
 
     if (!_.isEmpty(state.ages)) {
         const agesArray = _.map(state.ages, (value, key) => {
             return { ...value, id: key };
         });
-        // console.log('JES mapStateToProps agesArray:', agesArray);
         return { 
             downloadedData: state.downloadedData,
             ages: agesArray 
@@ -169,68 +165,3 @@ const styles = {
 
 // export default AgesList;
 export default connect(mapStateToProps, { agesFetch })(AgesList);
-
-
-/**
- *     
- * 
- * 
-                <Modal
-                    animationType="fade"
-                    transparent={false}
-                    hardwareAccelerated
-                    presentationStyle="formSheet"
-                    visible={this.state.modalVisible}
-                    onRequestClose={() => {
-                        alert('Modal has been closed.');
-                    }}
-                >
-                    <View style={{ marginTop: 100, justifyContent: 'center', alignItems: 'center', flexDirection: 'column', maxHeight: 200 }}>
-                        <TextNative h4>Exit Marvel Oldies App?</TextNative>
-                        <View style={{ flexDirection: 'row', justifyContent: 'space-around' }}>
-
-                            <Button
-                                icon={{ name: 'link' }}
-                                onPress={() => { console.log('JES yessssss'); BackHandler.exitApp(); }}
-                                fontFamily='Lato'
-                                backgroundColor='#03A9F4'
-                                buttonStyle={{ borderRadius: 0, marginLeft: 0, marginRight: 0, marginBottom: 0 }}
-                                title='Yes'
-                            />
-                            <Button
-                                icon={{ name: 'link' }}
-                                onPress={() => { console.log('JES nooooooo'); this.setModalVisible(!this.state.modalVisible); }}
-                                fontFamily='Lato'
-                                backgroundColor='#03A9F4'
-                                buttonStyle={{ borderRadius: 0, marginLeft: 0, marginRight: 0, marginBottom: 0 }}
-                                title='No'
-                            />
-                        </View>
-                    </View>
-                </Modal>
- * 
- * 
- * {this.renderRow('goldenAge')}
- * 
- *             <Grid>
-                <Col style={{ backgroundColor: '#635DB7', height: 200 }} />
-                <Col style={{ backgroundColor: '#00CE9F', height: 200 }} />
-              </Grid>
-              
-              
-              render() {
-        const title = 'Ages'; 
-        return (
-            <View>
-                <Header headerText={title} />
-                <ListView
-                    style={{ backgroundColor: '#ffffff' }}
-                    enableEmptySections
-                    dataSource={this.dataSource}
-                    renderRow={this.renderRow}
-                />
-            </View>
-
-        );
-    }
- */

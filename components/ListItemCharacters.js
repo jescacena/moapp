@@ -8,6 +8,10 @@ import {
 } from 'react-native';
 import HTMLView from 'react-native-htmlview';
 import { Actions } from 'react-native-router-flux';
+import { connect } from 'react-redux';
+
+// import { setScrollPositionCharacterList } from '../actions';
+
 import { CardSection } from './common';
 import latoRegularFont from '../assets/fonts/Lato-Regular.ttf';
 
@@ -26,25 +30,14 @@ class ListItemCharacters extends Component {
     }
 
     onRowPress() {
-        console.log('JES character selected:', this.props.character);
-        Actions.characterDetail({ character: this.props.character });
-    }
+        //Actions.characterDetail({ character: this.props.character });
 
-    renderAndroidItem(name, img, yearDebuted, description) {
-        return (
-            <TouchableWithoutFeedback delayPressIn={0} onPress={this.onRowPress.bind(this)} style={{marginTop:10}}>
-                <View style={{ flex: 1, flexDirection: 'column' }}>
-                    <TextNative h4>{name}</TextNative>
-                    <View style={{ maxHeight: 50 }}>
-                        <Text numberOfLines={2} style={{ marginTop: 5, fontFamily: 'Lato' }}>{description}</Text>
-                    </View>
-                </View>
-            </TouchableWithoutFeedback>
+        this.props.onPressCallback(this.props.character);
 
-        );
     }
 
     renderIOSItem(name, img, yearDebuted, description) {
+        const imageCacheFlag = (!this.props.forceImageDataReload) ? 'force-cache' : 'reload';
         return (
             <TouchableOpacity onPress={this.onRowPress.bind(this)} style={{ backgroundColor: 'rgba(241, 241, 241, 1)' }}>
                 {
@@ -59,7 +52,7 @@ class ListItemCharacters extends Component {
                                 <Avatar
                                     large
                                     rounded
-                                    source={{ uri: img, cache: 'force-cache' }}
+                                    source={{ uri: img, cache: imageCacheFlag }}
                                     overlayContainerStyle={{ marginTop: 0 }}
                                     resizeMethod="resize"
                                 />
@@ -101,6 +94,20 @@ class ListItemCharacters extends Component {
 }
 
 /**
+ * 
+ *     renderAndroidItem(name, img, yearDebuted, description) {
+        return (
+            <TouchableWithoutFeedback delayPressIn={0} onPress={this.onRowPress.bind(this)} style={{marginTop:10}}>
+                <View style={{ flex: 1, flexDirection: 'column' }}>
+                    <TextNative h4>{name}</TextNative>
+                    <View style={{ maxHeight: 50 }}>
+                        <Text numberOfLines={2} style={{ marginTop: 5, fontFamily: 'Lato' }}>{description}</Text>
+                    </View>
+                </View>
+            </TouchableWithoutFeedback>
+
+        );
+    }
  *        
  *                             avatar={
                                 <Avatar
@@ -180,5 +187,10 @@ const styles = {
     }
 };
 
-export default ListItemCharacters;
+const mapStateToProps = state => {
+    return {
+        forceImageDataReload: state.forceImageDataReload
+    };
+};
 
+export default connect(mapStateToProps)(ListItemCharacters);

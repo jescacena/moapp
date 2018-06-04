@@ -28,21 +28,17 @@ export const loadAllJsonDataFiles = async () => {
 
     //1.- Config read local
     const localConfig = _.cloneDeep(await getLocalConfig());
-    console.log('JES localConfig', localConfig);
 
     //2.- Config read remote
     const remoteConfig = await getRemoteConfig();
-    console.log('JES remoteConfig', remoteConfig);
 
     //4.- Get update flags
     const forceJsonDataReload = remoteConfig.forceJsonDataReload;
-    console.log('JES forceJsonDataReload', forceJsonDataReload);
 
     const refresJsonDataByDate = (localConfig) ?
         localConfig.jsonDataLastUpdateTimestamp < remoteConfig.jsonDataLastUpdateTimestamp
         :
         true;
-    console.log('JES refresJsonDataByDate', refresJsonDataByDate);
 
 
     //5.- Download Json data if needed
@@ -93,10 +89,13 @@ const getLocalConfig = async () => {
 };
 
 const getRemoteConfig = async () => {
-    const result = downloadConfigJsonFile();
-    return (!result.error) ? JSON.parse(await FileSystem.readAsStringAsync(`${LOCAL_STORAGE_JSON_DIRECTORY}/${CONFIG_REMOTE_JSON_FILE}`))
-        :
-        null;
+    const result = await downloadConfigJsonFile();
+    if (result.status === 200) {
+        return JSON.parse( await FileSystem.readAsStringAsync(`${LOCAL_STORAGE_JSON_DIRECTORY}/${CONFIG_REMOTE_JSON_FILE}`) );
+
+    } else {
+        return null;
+    }
 };
 
 /**
@@ -113,8 +112,6 @@ const downloadJSONFiles = async () => {
         { key: 'eighties', data: await downloadFileUriIntoFileSystem(`${API_BASE_URL}/${EIGHTIES_JSON_FILE}`, `${EIGHTIES_JSON_FILE}`) }
     ];
 
-    // console.log('JES 22222 downloadResults', downloadResults);
-
     //2.- Check if all files are downloaded ok
     const hasError = _.find(downloadResults, (item) => {
         return item.data.status !== 200;
@@ -126,8 +123,6 @@ const downloadJSONFiles = async () => {
 
 const downloadConfigJsonFile = async () => {
     const downloadResult = await downloadFileUriIntoFileSystem(`${API_BASE_URL}/${CONFIG_JSON_FILE}`, `${CONFIG_REMOTE_JSON_FILE}`);
-    console.log('JES downloadConfigJsonFile downloadResult', downloadResult);
-
     return (downloadResult.status === 200) ? downloadResult : { error: 'Config json file fetching error!' };
 };
 
@@ -147,10 +142,8 @@ export const loadASyncDataFromStorage = async (fileUri) => {
  * @param {string} uri
  * @param {string} targetFile (device filesystem)
  */
-export const downloadFileUriIntoFileSystem = (uri, targetFile) => {
-    console.log(`JES downloadFileUriIntoFileSystem-->${LOCAL_STORAGE_JSON_DIRECTORY}/${targetFile}`);
-
-    return FileSystem.downloadAsync(
+export const downloadFileUriIntoFileSystem = async (uri, targetFile) => {
+    return await FileSystem.downloadAsync(
         uri,
         `${LOCAL_STORAGE_JSON_DIRECTORY}/${targetFile}`
     );
@@ -171,6 +164,11 @@ export const getMarvelPortraitSmallImage = (imageUri) => {
     } else if (imageUri.indexOf('.png') !== -1) {
         result = imageUri.replace('.png', '_tn.png');
     } 
-    // console.log('JES getMarvelPortraitSmallImage imageUri, result', imageUri, result);
     return result;
 };
+
+export const getForceImageReloadFlag = async () => {
+    const localConfig = await getLocalConfig();
+    return localConfig.forceImageDataReload;
+};
+

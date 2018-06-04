@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Actions } from 'react-native-router-flux';
-import { Text, View, StyleSheet, ImageBackground } from 'react-native';
+import { Text, View, StyleSheet, ImageBackground, Dimensions } from 'react-native';
 import { Font, FileSystem } from 'expo';
 import * as Redux from 'react-redux';
 import {
@@ -17,13 +17,14 @@ import {
 
 import { Text as TextNative } from 'react-native-elements';
 import {
-    DOWNLOAD_SUCCESS
+    DOWNLOAD_SUCCESS, SET_FORCE_IMAGE_RELOAD
 } from '../actions/types';
 
 
-import { gaScreenView, loadAllJsonDataFiles } from '../services';
+import { gaScreenView, loadAllJsonDataFiles, getForceImageReloadFlag } from '../services';
 
 import splashImage from '../assets/img/Marvel-Comics-Logo-Oldies.png';
+import packageJson from '../package.json';
 
 
 class Splash extends Component {
@@ -38,9 +39,10 @@ class Splash extends Component {
             //Preload JSON remote data
             const downloadedData = await loadAllJsonDataFiles();
 
-            // console.log('JES downloadedData', downloadedData);
-
             dispatch({ type: DOWNLOAD_SUCCESS, payload: downloadedData });
+
+            const forceImageDataReload = await getForceImageReloadFlag();
+            dispatch({ type: SET_FORCE_IMAGE_RELOAD, payload: forceImageDataReload });
 
             //Go home: ages screen
             Actions.main();
@@ -53,12 +55,14 @@ class Splash extends Component {
                 <ImageBackground
                     style={styles.backdrop}
                     source={splashImage}
+                    resizeMode='contain'
                 >
                 </ImageBackground>
 
                 <DotIndicator color='#f1f1f1' count={3} size={10} animationDuration={1000} />
 
-                <TextNative h6 style={{ color: '#ffffff', padding: 10, fontSize: 9 }}>* All Marvel Characters and the distinctive likeness(es) thereof are Trademarks & Copyright © 1941 - 2018 Marvel Characters, Inc. and used with permission. ALL RIGHTS RESERVED.</TextNative>
+                <TextNative h4 style={{ color: '#f1f1f1', padding: 10, fontSize: 9 }}>{packageJson.version}</TextNative>
+                <TextNative h6 style={{ color: '#f1f1f1', padding: 10, fontSize: 9 }}>* All Marvel Characters info were compilled from free copyright sources.</TextNative>
             </View>
         );
     }
@@ -72,12 +76,12 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'space-around',
         alignItems: 'center',
-        backgroundColor: '#f11e22',
+        backgroundColor: '#ed1b24',
         width: null
     },
     backdrop: {
         marginTop: 100,
-        width: 320,
+        width: Dimensions.get('window').width - 100 ,
         height: 150
     },
     backdropView: {
