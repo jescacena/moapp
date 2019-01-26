@@ -1,0 +1,47 @@
+{
+	"expo": {
+		"name": "Comic Oldies",
+		"description": "A quick catalog for old comic characters",
+		"slug": "comic-oldies",
+		"privacy": "public",
+		"sdkVersion": "32.0.0",
+		"platforms": [
+			"android"
+		],
+		"version": "2.0.0",
+		"orientation": "portrait",
+		"icon": "./assets/icon-moapp.png",
+		"splash": {
+			"image": "./assets/img/Splash.png",
+			"resizeMode": "contain",
+			"backgroundColor": "#3171f9"
+		},
+		"updates": {
+			"fallbackToCacheTimeout": 0
+		},
+		"assetBundlePatterns": [
+			"**/*"
+		],
+		"ios": {
+			"supportsTablet": true
+		},
+		"android": {
+			"package": "com.jes.moapp",
+			"versionCode": 3,
+			"permissions": [
+				"ACCESS_COARSE_LOCATION",
+				"ACCESS_FINE_LOCATION",
+				"ACCESS_NETWORK_STATE",
+				"INTERNET",
+				"MANAGE_DOCUMENTS",
+				"READ_EXTERNAL_STORAGE",
+				"READ_INTERNAL_STORAGE",
+				"SYSTEM_ALERT_WINDOW",
+				"VIBRATE",
+				"WAKE_LOCK",
+				"WRITE_EXTERNAL_STORAGE",
+				"WRITE_SETTINGS"
+			]
+		}
+	}
+}
