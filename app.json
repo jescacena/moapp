@@ -26,7 +26,7 @@
 			"supportsTablet": true
 		},
 		"android": {
-			"package": "com.jes.moapp",
+			"package": "com.jes.moappv2",
 			"versionCode": 3,
 			"permissions": [
 				"ACCESS_COARSE_LOCATION",
@@ -44,5 +44,5 @@
 			]
 		}
 	}
-	
+
 }
