@@ -5,6 +5,7 @@ import Splash from './components/Splash';
 import AgesList from './components/AgesList';
 import CharactersList from './components/CharactersList';
 import CharacterDetail from './components/CharacterDetail';
+import PrivacyPolicy from './components/PrivacyPolicy';
 
 const RouterComponent = () => {
     const characterExample = {
@@ -23,7 +24,8 @@ const RouterComponent = () => {
                 <Scene key="main" style={{ paddingTop: Platform.OS === 'ios' ? 10 : StatusBar.currentHeight }}>
                     <Scene key="listAges" component={AgesList} hideNavBar />
                     <Scene key="listCharacters" component={CharactersList} title="Characters List" hideNavBar />
-                    <Scene key="characterDetail" component={CharacterDetail} hideNavBar/>
+                    <Scene key="characterDetail" component={CharacterDetail} hideNavBar />
+                    <Scene key="privacyPolicy" component={PrivacyPolicy} hideNavBar />
                 </Scene>
             </Scene>
         </Router>

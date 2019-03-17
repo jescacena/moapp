@@ -1,34 +1,48 @@
-import _ from 'lodash';
-import React, { Component } from 'react';
-import { connect } from 'react-redux';
-import { Platform, StatusBar, ListView, View, Text, BackHandler, ActivityIndicator, Dimensions } from 'react-native';
-import Modal from 'react-native-modalbox';
-import { Button, Text as TextNative } from 'react-native-elements';
-import { Container, Header, Content } from 'native-base';
+import _ from "lodash";
+import React, { Component } from "react";
+import { connect } from "react-redux";
+import {
+	Platform,
+	StatusBar,
+	ListView,
+	View,
+	Text,
+	BackHandler,
+	ActivityIndicator,
+	Dimensions
+} from "react-native";
+import Modal from "react-native-modalbox";
+import { Actions } from 'react-native-router-flux';
 
-import { Col, Row, Grid } from 'react-native-easy-grid';
+import { Button, Text as TextNative } from "react-native-elements";
+import { Container, Header, Content } from "native-base";
 
-import { agesFetch } from '../actions';
-import { gaScreenView, gaScreenEvent, LOCAL_STORAGE_JSON_DIRECTORY, AGES_JSON_FILE } from '../services';
+import { Col, Row, Grid } from "react-native-easy-grid";
 
-import ListItemAges from './ListItemAges';
-import * as Constants from '../services/Constants';
+import { agesFetch } from "../actions";
+import {
+	gaScreenView,
+	gaScreenEvent,
+	LOCAL_STORAGE_JSON_DIRECTORY,
+	AGES_JSON_FILE
+} from "../services";
+
+import ListItemAges from "./ListItemAges";
+import * as Constants from "../services/Constants";
 
 class AgesList extends Component {
-
 	state = {
 		modalVisible: false
 	};
 
 	componentWillMount() {
+		gaScreenView("AgesList");
 
-		gaScreenView('AgesList');
-
-		BackHandler.addEventListener('hardwareBackPress', () => {
+		BackHandler.addEventListener("hardwareBackPress", () => {
 			// this.onMainScreen and this.goBack are just examples, you need to use your own implementation here
 			// Typically you would use the navigator here to go to the last state.
 
-			gaScreenView('Modal exit app');
+			gaScreenView("Modal exit app");
 			this.setModalVisible(true);
 			// this.refs.modal2.open();
 			return true;
@@ -38,7 +52,9 @@ class AgesList extends Component {
 		// const agesFileUri = _.find(this.props.downloadedData, (item) => {
 		//     return item.key === 'ages';
 		// }).data.uri;
-		this.props.agesFetch(`${LOCAL_STORAGE_JSON_DIRECTORY}/${AGES_JSON_FILE}`);
+		this.props.agesFetch(
+			`${LOCAL_STORAGE_JSON_DIRECTORY}/${AGES_JSON_FILE}`
+		);
 
 		this.createDataSource(this.props);
 	}
@@ -58,82 +74,167 @@ class AgesList extends Component {
 		this.dataSource = ds.cloneWithRows(ages);
 	}
 
-
-
 	renderRow(ageKey) {
 		if (this.props.ages && this.props.ages.length > 0) {
-			const ageItem = _.find(this.props.ages, (item) => { return item.key === ageKey; });
+			const ageItem = _.find(this.props.ages, item => {
+				return item.key === ageKey;
+			});
 			return <ListItemAges age={ageItem} />;
 		}
 		return (
-			<View style={{ flex: 1, flexDirection: 'row', justifyContent: 'space-around' }}>
-				<ActivityIndicator size="large" color={Constants.PALETE_COLOR_LIGHT_GREY} />
+			<View
+				style={{
+					flex: 1,
+					flexDirection: "row",
+					justifyContent: "space-around"
+				}}
+			>
+				<ActivityIndicator
+					size="large"
+					color={Constants.PALETE_COLOR_LIGHT_GREY}
+				/>
 			</View>
 		);
 	}
 
-
 	render() {
-		const title = 'Ages';
-		const { tileStyle, textStyle } = styles;
+		const title = "Ages";
+		const { tileStyle, tileStylePolicy } = styles;
 		return (
-			<View style={{ flex: 1, backgroundColor: '#000000', marginTop: Platform.OS === 'ios' ? 20 : StatusBar.currentHeight }}>
+			<View
+				style={{
+					flex: 1,
+					backgroundColor: Constants.PALETE_COLOR_RED,
+					marginTop:
+						Platform.OS === "ios" ? 20 : StatusBar.currentHeight
+				}}
+			>
+				<Container
+					style={{
+						flex: 1,
+						marginTop: 0,
+						backgroundColor: Constants.PALETE_COLOR_RED
+					}}
+				>
+					<Content
+						style={{
+							flex: 1,
+							margin: 0,
+							backgroundColor: Constants.PALETE_COLOR_RED
+						}}
+					>
+						<Grid
+							style={{
+								flex: 1,
+								margin: 0,
+								backgroundColor: Constants.PALETE_COLOR_BLACK
+							}}
+						>
+							<Row style={tileStyle}>
+								{this.renderRow("goldenAge")}
+							</Row>
+							<Row style={tileStyle}>
+								{this.renderRow("sixties")}
+							</Row>
+							<Row style={tileStyle}>
+								{this.renderRow("seventies")}
+							</Row>
+							<Row style={tileStyle}>
+								{this.renderRow("eighties")}
+							</Row>
 
-				<Container style={{ flex: 1, marginTop: 0, backgroundColor: Constants.PALETE_COLOR_BLACK }}>
-					<Content style={{ flex: 1, margin: 0, backgroundColor: Constants.PALETE_COLOR_BLACK }}>
-						<Grid style={{ flex: 1, margin: 0, backgroundColor: Constants.PALETE_COLOR_BLACK }}>
-							<Row style={tileStyle}>
-								{this.renderRow('goldenAge')}
-							</Row>
-							<Row style={tileStyle}>
-								{this.renderRow('sixties')}
-							</Row>
-							<Row style={tileStyle}>
-								{this.renderRow('seventies')}
-							</Row>
-							<Row style={tileStyle}>
-								{this.renderRow('eighties')}
-							</Row>
+							<Row style={tileStyle} />
 						</Grid>
 					</Content>
 				</Container>
 
 				<Modal
-					style={{ justifyContent: 'center', alignItems: 'center', height: 150, width: 300, backgroundColor: Constants.PALETE_COLOR_RED }}
+					style={{
+						justifyContent: "center",
+						alignItems: "center",
+						height: 150,
+						width: 300,
+						backgroundColor: Constants.PALETE_COLOR_RED
+					}}
 					backdrop={false}
-					position={'center'}
-					ref={'modal3'}
+					position={"center"}
+					ref={"modal3"}
 					isOpen={this.state.modalVisible}
 				>
 					<TextNative h5>Exit Marvel Oldies App?</TextNative>
-					<View style={{ flexDirection: 'row', justifyContent: 'space-around', marginTop: 20 }}>
-
+					<View
+						style={{
+							flexDirection: "row",
+							justifyContent: "space-around",
+							marginTop: 20
+						}}
+					>
 						<Button
-							onPress={() => { BackHandler.exitApp(); gaScreenEvent('Modal Exit app press'); }}
-							fontFamily='Lato'
+							onPress={() => {
+								BackHandler.exitApp();
+								gaScreenEvent("Modal Exit app press");
+							}}
+							fontFamily="Lato"
 							backgroundColor={Constants.PALETE_COLOR_LIGHT_GREY}
-							buttonStyle={{ borderRadius: 0, marginLeft: 0, marginRight: 0, marginBottom: 0, width: 100 }}
-							title='Yes'
+							buttonStyle={{
+								borderRadius: 0,
+								marginLeft: 0,
+								marginRight: 0,
+								marginBottom: 0,
+								width: 100
+							}}
+							title="Yes"
 							textStyle={{ color: Constants.PALETE_COLOR_BLACK }}
 						/>
 						<Button
-							onPress={() => { this.setModalVisible(!this.state.modalVisible); gaScreenEvent('Modal continue press'); }}
-							fontFamily='Lato'
+							onPress={() => {
+								this.setModalVisible(!this.state.modalVisible);
+								gaScreenEvent("Modal continue press");
+							}}
+							fontFamily="Lato"
 							backgroundColor={Constants.PALETE_COLOR_LIGHT_GREY}
-							buttonStyle={{ borderRadius: 0, marginLeft: 0, marginRight: 0, marginBottom: 0, width: 100 }}
-							title='No'
+							buttonStyle={{
+								borderRadius: 0,
+								marginLeft: 0,
+								marginRight: 0,
+								marginBottom: 0,
+								width: 100
+							}}
+							title="No"
 							textStyle={{ color: Constants.PALETE_COLOR_BLACK }}
 						/>
 					</View>
 				</Modal>
+				<Button
+					onPress={() => {
+						Actions.privacyPolicy();
+					}}
+					fontFamily="Lato"
+					backgroundColor={Constants.PALETE_COLOR_BLUE}
+					buttonStyle={{
+						flex: 1,
+						borderRadius: 0,
+						marginLeft: -15,
+						marginRight: 0,
+						marginBottom: 0,
+						alignItems: 'center',
+						justifyContent: "center",
+						position: 'relative',
+						left: 0,
+						width: Dimensions.get("window").width
+					}}
+					title="Privacy policy"
+					textStyle={{
+						color: Constants.PALETE_COLOR_LIGHT_GREY,
+						fontSize: 14
+					}}
+				/>
 			</View>
-
 		);
 	}
 }
 
 const mapStateToProps = state => {
-
 	if (!_.isEmpty(state.ages)) {
 		const agesArray = _.map(state.ages, (value, key) => {
 			return { ...value, id: key };
@@ -142,7 +243,6 @@ const mapStateToProps = state => {
 			downloadedData: state.downloadedData,
 			ages: agesArray
 		};
-
 	}
 	return {
 		downloadedData: state.downloadedData,
@@ -150,18 +250,23 @@ const mapStateToProps = state => {
 	};
 };
 
-
 const styles = {
 	tileStyle: {
 		backgroundColor: Constants.PALETE_COLOR_RED,
-		height: (Dimensions.get('window').height / 4) - 5,
+		height: Dimensions.get("window").height / 4 - 5,
+		flex: 1
+	},
+	tileStylePolicy: {
+		backgroundColor: Constants.PALETE_COLOR_RED,
+		height: 10,
 		flex: 1
 	},
 
-	textStyle: {
-
-	}
+	textStyle: {}
 };
 
 // export default AgesList;
-export default connect(mapStateToProps, { agesFetch })(AgesList);
+export default connect(
+	mapStateToProps,
+	{ agesFetch }
+)(AgesList);
